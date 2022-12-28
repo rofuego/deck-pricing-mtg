@@ -1,1 +1,1 @@
-# deck-budget
+# deck-budget-mtg
