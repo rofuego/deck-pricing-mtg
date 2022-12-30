@@ -3,7 +3,7 @@ import pandas as pd
 data = pd.read_csv('data.csv')
 data['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
 
-add_cards = pd.read_csv('add_cards.csv')
+add_cards = pd.read_csv('database/add_cards.csv')
 add_cards['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
 
 for index, row in add_cards.iterrows():
