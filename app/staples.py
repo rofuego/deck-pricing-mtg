@@ -21,4 +21,31 @@ df_lands['# Played'] = df_lands['# Played'].apply(ceil)
 df_creatures['# Played'] = df_creatures['# Played'].apply(ceil)
 df_spells['# Played'] = df_spells['# Played'].apply(ceil)
 
-print(df_lands)
+
+list = [df_lands, df_creatures, df_spells]
+eval = pd.DataFrame(
+    columns=['Quantity to buy', 'Card'])
+
+data = pd.read_csv('data.csv')
+data['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
+
+for df in list:
+    eval = pd.DataFrame(
+        columns=['Quantity to buy', 'Card'])
+    for index, row in df.iterrows():
+        match_data = data.loc[data['Card'] == row['Card']]
+        if not match_data.empty:
+            row_index_data = match_data.index[0]
+            if data.at[row_index_data, "Quantity"] < row["# Played"]:
+                quantity = row["# Played"] - \
+                    data.at[row_index_data, "Quantity"]
+                new_row = pd.Series(
+                    {'Quantity to buy': quantity, 'Card': row['Card']})
+                eval = pd.concat(
+                    [eval, new_row.to_frame().T], ignore_index=True)
+        else:
+            new_row = pd.Series(
+                {'Quantity to buy': row["# Played"], 'Card': row['Card']})
+            eval = pd.concat(
+                [eval, new_row.to_frame().T], ignore_index=True)
+    print(eval)
