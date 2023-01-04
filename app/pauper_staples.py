@@ -1,9 +1,9 @@
 import pandas as pd
 from math import ceil
 
-url_creatures = 'https://www.mtggoldfish.com/format-staples/modern/full/creatures'
-url_lands = "https://www.mtggoldfish.com/format-staples/modern/full/lands"
-url_spells = "https://www.mtggoldfish.com/format-staples/modern/full/spells"
+url_creatures = 'https://www.mtggoldfish.com/format-staples/pauper/full/creatures'
+url_lands = "https://www.mtggoldfish.com/format-staples/pauper/full/lands"
+url_spells = "https://www.mtggoldfish.com/format-staples/pauper/full/spells"
 
 page_lands = pd.read_html(url_lands)
 page_creatures = pd.read_html(url_creatures)
@@ -24,14 +24,14 @@ df_spells['# Played'] = df_spells['# Played'].apply(ceil)
 
 list = [df_lands, df_creatures, df_spells]
 eval = pd.DataFrame(
-    columns=['Quantity to buy', 'Card'])
+    columns=['Buy', 'Card'])
 
 data = pd.read_csv('data.csv')
 data['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
 
 for df in list:
     eval = pd.DataFrame(
-        columns=['Quantity to buy', 'Card'])
+        columns=['Buy', 'Card'])
     for index, row in df.iterrows():
         match_data = data.loc[data['Card'] == row['Card']]
         if not match_data.empty:
@@ -40,12 +40,13 @@ for df in list:
                 quantity = row["# Played"] - \
                     data.at[row_index_data, "Quantity"]
                 new_row = pd.Series(
-                    {'Quantity to buy': quantity, 'Card': row['Card']})
+                    {'Buy': quantity, 'Card': row['Card']})
                 eval = pd.concat(
                     [eval, new_row.to_frame().T], ignore_index=True)
         else:
             new_row = pd.Series(
-                {'Quantity to buy': row["# Played"], 'Card': row['Card']})
+                {'Buy': row["# Played"], 'Card': row['Card']})
             eval = pd.concat(
                 [eval, new_row.to_frame().T], ignore_index=True)
+    print("*****")
     print(eval)
