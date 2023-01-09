@@ -2,10 +2,11 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-url = 'https://www.mtggoldfish.com/archetype/burn-a2dd1132-5301-4882-907a-7b668da3b58a#paper'
+url = 'https://www.mtggoldfish.com/archetype/modern-yawgmoth-9bd3dc9a-1da1-442e-9b88-6ef2a027e80b#paper'
 page = pd.read_html(url)
 response = requests.get(url)
 bs = BeautifulSoup(response.text, "html.parser")
+
 title = bs.find(class_="title").text.split("\n")[1]
 format = bs.find(class_="deck-container-information").text.split("\n")[1]
 
@@ -46,6 +47,10 @@ sb = sb.assign(SinglePrice=sb.apply(calc_uprice, axis=1))
 data = pd.read_csv('data.csv')
 data['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
 
+""" eval = pd.DataFrame(
+    columns=['Card', 'QMain', 'QSb', 'QData', 'SinglePrice', 'TotalPrice'])
+ """
+
 eval_main = pd.DataFrame(
     columns=['QuantityInMain', 'QuantityHave', 'Card', 'BuyingPrice'])
 
@@ -56,7 +61,7 @@ for index, row in main.iterrows():
     match_data = data.loc[data['Card'] == row['Card']]
     if not match_data.empty:
         row_index_data = match_data.index[0]
-        if data.at[row_index_data, "Quantity"] >= 4:
+        if (row["Quantity"] <= data.at[row_index_data, "Quantity"]):
             price = 0
         else:
             price = row['SinglePrice'] * \
@@ -80,13 +85,13 @@ for index, row in sb.iterrows():
             row_index_main = match_main.index[0]
             if data.at[row_index_data, "Quantity"] >= 4:
                 price = 0
+                new_row = pd.Series({'QuantityInSb': row["Quantity"], 'QuantityHave': data.at[row_index_data, "Quantity"],
+                                     'QuantityInMain': main.at[row_index_main, "Quantity"], 'Card': row['Card'], 'BuyingPrice': price})
             else:
                 price = row['SinglePrice'] * ((row["Quantity"] + main.at[row_index_main,
                                               "Quantity"]) - data.at[row_index_data, "Quantity"])
-            price = row['SinglePrice'] * ((row["Quantity"] + main.at[row_index_main,
-                                          "Quantity"]) - data.at[row_index_data, "Quantity"])
-            new_row = pd.Series({'QuantityInSb': row["Quantity"], 'QuantityHave': data.at[row_index_data, "Quantity"],
-                                'QuantityInMain': main.at[row_index_main, "Quantity"], 'Card': row['Card'], 'BuyingPrice': price})
+                new_row = pd.Series({'QuantityInSb': row["Quantity"], 'QuantityHave': data.at[row_index_data, "Quantity"],
+                                     'QuantityInMain': main.at[row_index_main, "Quantity"], 'Card': row['Card'], 'BuyingPrice': price})
             eval_sb = pd.concat(
                 [eval_sb, new_row.to_frame().T], ignore_index=True)
         else:
