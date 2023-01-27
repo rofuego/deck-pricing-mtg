@@ -1,5 +1,6 @@
-data.csv
-new_cards.csv
+app/data.csv
+app/new_cards.csv
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
