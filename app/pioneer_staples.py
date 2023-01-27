@@ -1,5 +1,6 @@
-import pandas as pd
 from math import ceil
+
+import pandas as pd
 
 url_creatures = 'https://www.mtggoldfish.com/format-staples/pioneer/full/creatures'
 url_lands = "https://www.mtggoldfish.com/format-staples/pioneer/full/lands"
@@ -21,10 +22,8 @@ df_lands['# Played'] = df_lands['# Played'].apply(ceil)
 df_creatures['# Played'] = df_creatures['# Played'].apply(ceil)
 df_spells['# Played'] = df_spells['# Played'].apply(ceil)
 
-
 list = [df_lands, df_creatures, df_spells]
-eval = pd.DataFrame(
-    columns=['Buy', 'Card'])
+eval = pd.DataFrame(columns=['Buy', 'Card'])
 
 data = pd.read_csv('data.csv')
 data['Quantity'] = pd.to_numeric(data['Quantity'], downcast='integer')
@@ -38,7 +37,7 @@ for df in list:
             row_index_data = match_data.index[0]
             if data.at[row_index_data, "Quantity"] < row["# Played"]:
                 quantity = row["# Played"] - \
-                    data.at[row_index_data, "Quantity"]
+                           data.at[row_index_data, "Quantity"]
                 new_row = pd.Series(
                     {'Buy': quantity, 'Card': row['Card']})
                 eval = pd.concat(
@@ -49,4 +48,4 @@ for df in list:
             eval = pd.concat(
                 [eval, new_row.to_frame().T], ignore_index=True)
     print("*****")
-    print(eval)
+    print(eval.to_string(index=False))
