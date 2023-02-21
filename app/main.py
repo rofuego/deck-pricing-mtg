@@ -7,8 +7,8 @@ page = pd.read_html(url)
 response = requests.get(url)
 bs = BeautifulSoup(response.text, "html.parser")
 
-title = bs.find(class_="title").text.split("\n")[1]
-format = bs.find(class_="deck-container-information").text.split("\n")[1]
+deck_title = bs.find(class_="title").text.split("\n")[1]
+deck_format = bs.find(class_="deck-container-information").text.split("\n")[1]
 
 df = page[0]
 df.columns = ['Quantity', 'Card', 'Mana', 'TotalPrice']
@@ -116,12 +116,12 @@ for index, row in sb.iterrows():
         eval_sb = pd.concat(
             [eval_sb, new_row.to_frame().T], ignore_index=True)
 
-print("Deck: " + title)
-print(format)
+print("Deck: " + deck_title)
+print(deck_format)
 print("***** MainDeck *****")
-print(eval_main)
+print(eval_main.to_string(index=False))
 print("***** Sb *****")
-print(eval_sb)
+print(eval_sb.to_string(index=False))
 print(f"Subtotal pricing main deck: {eval_main['BuyingPrice'].sum():.2f}")
 print(f"Subtotal pricing sb: {eval_sb['BuyingPrice'].sum():.2f}")
 print(
